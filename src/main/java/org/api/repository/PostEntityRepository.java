@@ -27,7 +27,7 @@ public interface PostEntityRepository extends BaseRepository<PostEntity, String>
     public Page<PostEntity> findAllByUserEntityPostIdIn(List<String> idUser, Pageable pageable);
 
     @Query("select p FROM PostEntity p WHERE p.accessModifierLevel = 'public' or p.accessModifierLevel = 'people'")
-    public Page<PostEntity> findAllLimit10(Pageable pageable);
+    public Page<PostEntity> findAll(Pageable pageable);
 
     @Query("select p from PostEntity p where p.userEntityPost = ?1 and p.typePost = ?2")
     public List<PostEntity> getPostByUserAndType(UserEntity user, String type);

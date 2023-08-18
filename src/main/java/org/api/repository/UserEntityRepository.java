@@ -25,13 +25,9 @@ public interface UserEntityRepository extends BaseRepository<UserEntity, String>
     @Query("SELECT u FROM UserEntity u WHERE u.mail = ?1 AND u.id <> ?2")
     public Optional<UserEntity> existsByMailAndId(String mail, String id);
 
-    @Query("SELECT u FROM UserEntity u WHERE u.id <> ?1")
-    public List<UserEntity> recommendNotUser(String idUser);
-
-    @Query("SELECT DISTINCT u FROM UserEntity u " +
-            "JOIN RelationshipEntity r1 ON u.id = r1.userEntityOne.id " +
-            "JOIN RelationshipEntity r2 ON u.id = r2.userEntityTow.id " +
-            "WHERE r1.userEntityOne.id = ?1 OR r2.userEntityTow.id = ?1")
+    @Query("SELECT DISTINCT u FROM UserEntity u WHERE u.id NOT IN " +
+            "(SELECT r1.userEntityOne.id FROM RelationshipEntity r1 WHERE r1.userEntityTow.id = ?1) " +
+            "AND u.id NOT IN (SELECT r2.userEntityTow.id FROM RelationshipEntity r2 WHERE r2.userEntityOne.id = ?1)")
     public List<UserEntity> recommendFriends(String idUser);
 
         @Query("SELECT new org.api.payload.response.admin.ReportTotalUser(MONTH(u.createDate),COUNT(u))\n"+

@@ -194,21 +194,21 @@ public class PostEntityServiceImpl implements PostEntityService {
             pageableRequest.setSize(size);
             pageableRequest.setSort(Sort.by("id").ascending());
             pageableRequest.setPage(0);
-            Page<PostEntity> pagePostEntity = null;
-            if (!listFriends.isEmpty()) {
-                List<String> listIdFriend = new ArrayList<>();
-
-                for (RelationshipEntity friend : listFriends) {
-                    if (friend.getUserEntityOne().getId().equals(idUser))
-                        listIdFriend.add(friend.getUserEntityTow().getId());
-                    else if (friend.getUserEntityTow().getId().equals(idUser))
-                        listIdFriend.add(friend.getUserEntityOne().getId());
-                }
-
-                pagePostEntity = postEntityRepository.findAllByUserEntityPostIdIn(listIdFriend, pageableRequest.getPageable());
-            }else{
-                pagePostEntity = postEntityRepository.findAllLimit10(pageableRequest.getPageable());
-            }
+            Page<PostEntity> pagePostEntity = postEntityRepository.findAll(pageableRequest.getPageable());
+//            if (listFriends.size() > 0) {
+//                List<String> listIdFriend = new ArrayList<>();
+//
+//                for (RelationshipEntity friend : listFriends) {
+//                    if (friend.getUserEntityOne().getId().equals(idUser))
+//                        listIdFriend.add(friend.getUserEntityTow().getId());
+//                    else if (friend.getUserEntityTow().getId().equals(idUser))
+//                        listIdFriend.add(friend.getUserEntityOne().getId());
+//                }
+//
+//                pagePostEntity = postEntityRepository.findAllByUserEntityPostIdIn(listIdFriend, pageableRequest.getPageable());
+//            }else{
+//                pagePostEntity = postEntityRepository.findAllLimit10(pageableRequest.getPageable());
+//            }
             List<PostEntity> postEntities = pagePostEntity.getContent();
             List<PostHomeRespon> homeRespons = postEntities.stream().map(postEntity -> modelMapper.map(postEntity, PostHomeRespon.class)).collect(Collectors.toList());
 
