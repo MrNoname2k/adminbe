@@ -54,11 +54,14 @@ public class RelationshipEntityServiceImpl implements RelationshipEntityService 
 
         UserEntity userOne = authenticationService.authentication();
 
-        entity.setUserEntityOne(userOne);
-        entity.setUserEntityTow(userTwo);
-        entity.setStatus(status);
-        entity.setConfirm(ConstantRelationshipConfirm.UN_CONFIRM);
-        RelationshipEntity entityOld = relationshipEntityRepository.save(entity);
+        List<RelationshipEntity> listCheck = relationshipEntityRepository.findAllByUserEntityOneIdOrUserEntityTowId(userOne.getId(), userTwo.getId());
+        if(listCheck.size() < 0){
+            entity.setUserEntityOne(userOne);
+            entity.setUserEntityTow(userTwo);
+            entity.setStatus(status);
+            entity.setConfirm(ConstantRelationshipConfirm.UN_CONFIRM);
+            RelationshipEntity entityOld = relationshipEntityRepository.save(entity);
+        }
         return new ResultBean(ConstantStatus.STATUS_OK, ConstantMessage.MESSAGE_OK);
     }
 

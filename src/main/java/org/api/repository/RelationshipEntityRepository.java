@@ -17,6 +17,9 @@ public interface RelationshipEntityRepository extends BaseRepository<Relationshi
     @Query("select r from RelationshipEntity r WHERE (r.userEntityOne.id = ?1 and r.status = ?2) or (r.userEntityTow.id = ?1 and r.status = ?2)")
     public List<RelationshipEntity> findAllByUserEntityOneIdOrUserEntityTowIdAndStatus(String idOne, String status);
 
+    @Query("select r from RelationshipEntity r WHERE (r.userEntityOne.id = ?1 and r.userEntityTow.id = ?2) or (r.userEntityTow.id = ?1 and r.userEntityOne.id = ?2)")
+    public List<RelationshipEntity> findAllByUserEntityOneIdOrUserEntityTowId(String idOne, String idTow);
+
     @Query("SELECT r FROM RelationshipEntity r " +
             "WHERE ((r.userEntityOne.id = :id1 AND r.userEntityTow.id = :id2)" +
             "OR (r.userEntityTow.id = :id1 AND r.userEntityOne = :id2))")

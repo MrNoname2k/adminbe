@@ -116,7 +116,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         entity.setPassword(encoder.encode(DataUtil.getJsonString(jsonObject, ConstantColumns.PASSWORD)));
         entity.setStatus(ConstUserStatus.UN_CONFIRMED);
 
-        if (Boolean.TRUE.equals(userEntityRepository.existsByMail(entity.getMail()))) {
+        if (userEntityRepository.existsByMail(entity.getMail())) {
             throw new ApiValidateException(ConstantMessage.ID_ERR00001, MessageUtils.getMessage(ConstantMessage.ID_ERR00001));
         }
         String code = String.valueOf(ThreadLocalRandom.current().nextInt(10000, 99999));
