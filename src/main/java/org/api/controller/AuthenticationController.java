@@ -81,7 +81,8 @@ public class AuthenticationController {
     @GetMapping(value = "/change-password/confirm", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<ResultBean> confirmChangePassword(@RequestParam("required") String id,
                                                             @RequestParam("pwd") String newPwd,
-                                                            @RequestParam("expired") String expire) {
+                                                            @RequestParam("expired") String expire)
+    {
         LocalDateTime now = LocalDateTime.now();
         int year = now.getYear();
         int month = now.getMonthValue();

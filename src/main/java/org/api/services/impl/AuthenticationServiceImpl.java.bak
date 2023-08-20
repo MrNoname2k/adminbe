@@ -184,7 +184,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Object[] object = new Object[2];
         object[0] = user.getFirstName() + " " + user.getLastName();
         object[1] = "http://"
-                +IPV4+"/confirm?required="
+                +LOCAL_HOST+"/confirm?required="
                 +Base64.getEncoder().encodeToString(user.getId().getBytes())
                 +"&pwd="+Base64.getEncoder().encodeToString(map.get("password").getBytes())
                 +"&expired="+exp;
