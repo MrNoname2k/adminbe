@@ -100,6 +100,12 @@ public class MailerServiceImpl implements MailerService {
                 model.put("code", objects[0].toString());
                 model.put("mail", objects[1].toString());
             }
+        } else if (mailType == MailTypeEnum.CHANGE_PASS) {
+            template = "change-password.ftlh";
+            for (Object[] objects : body){
+                model.put("name", objects[0].toString());
+                model.put("link", objects[1].toString());
+            }
         }
         configuration.getTemplate(template).process(model, stringWriter);
         return stringWriter.getBuffer().toString();

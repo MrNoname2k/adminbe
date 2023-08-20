@@ -25,6 +25,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -41,6 +43,8 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 @Transactional(rollbackFor = {ApiValidateException.class, Exception.class})
 public class AuthenticationServiceImpl implements AuthenticationService {
+
+    private static final String IPV4 = "103.178.235.170";
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
@@ -156,6 +160,50 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    public ResultBean changePassword(String json) throws ApiValidateException, Exception {
+        try{
+        LocalDateTime now = LocalDateTime.now();
+            int year = now.getYear();
+            int month = now.getMonthValue();
+            int day = now.getDayOfMonth();
+            int hour = now.getHour();
+            int minute = now.getMinute();
+        String exp = Base64.getEncoder().encodeToString((year+"-"+month+"-"+day+"-"+hour+"-"+minute).getBytes());
+        Map<String,String> map = new Gson().fromJson(json,Map.class);
+        String mail = map.get("mail");
+        UserEntity user = userEntityRepository.findOneByMail(mail).orElseThrow(() -> new ApiValidateException(ConstantMessage.ID_ERR00002, ConstantColumns.USER_ID));
+        Object[] object = new Object[2];
+        object[0] = user.getFirstName() + " " + user.getLastName();
+        object[1] = "http://"
+                +IPV4+"/confirm?required="
+                +Base64.getEncoder().encodeToString(user.getId().getBytes())
+                +"&pwd="+Base64.getEncoder().encodeToString(map.get("password").getBytes())
+                +"&expired="+exp;
+        List<Object[]> list = new ArrayList<>();
+        list.add(object);
+        MailInfoResponse mailInfo = new MailInfoResponse(mail, MailTypeEnum.CHANGE_PASS.getText(), list, MailTypeEnum.CHANGE_PASS);
+        mailerService.send(mailInfo);
+        return new ResultBean(map,"200","OK");
+        }catch (MessagingException e) {
+            e.printStackTrace();
+            return new ResultBean(null,"200","OK");
+        }
+    }
+
+    @Override
+    public boolean confirmChange(String id, String newPwd) throws ApiValidateException, Exception {
+        try {
+            String idConvert = new String(Base64.getDecoder().decode(id));
+            String newPwdConvert = new String(Base64.getDecoder().decode(newPwd));
+            userEntityRepository.changePassword(encoder.encode(newPwdConvert),idConvert);
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
     public UserEntity authentication() throws ApiValidateException, Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetailsService userPrincipal = (CustomUserDetailsService) authentication.getPrincipal();
@@ -186,6 +234,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
         return new ResultBean(ConstantStatus.STATUS_BAD_REQUEST, ConstantMessage.MESSAGE_SYSTEM_ERROR);
     }
+
+
 
     private void convertJsonToEntityLogin(JsonObject json, UserEntity entity) throws ApiValidateException {
         if (DataUtil.hasMember(json, ConstantColumns.MAIL)) {

@@ -183,6 +183,7 @@ public class DataUtil {
             }
         } catch (Exception ex) {
             json = null;
+            ex.printStackTrace();
         }
         if (null == json) {
             throw new ApiValidateException(null, null, "Incorrect JSON format.");

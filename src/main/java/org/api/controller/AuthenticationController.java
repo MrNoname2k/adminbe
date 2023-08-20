@@ -14,6 +14,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.List;
+
 @LogExecutionTime
 @RestController
 @RequestMapping(value = "/v1/api/auth/")
@@ -55,6 +59,66 @@ public class AuthenticationController {
         try{
             ResultBean resultBean = authenticationService.forgotPasswordAuth(mail);
             return new ResponseEntity<ResultBean>(resultBean, HttpStatus.CREATED);
+        }catch (ApiValidateException ex){
+            return new ResponseEntity<ResultBean>(new ResultBean(ex.getCode(), ex.getMessage()), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_BAD_REQUEST,ConstantMessage.MESSAGE_SYSTEM_ERROR), HttpStatus.OK);
+        }
+    }
+
+    @PostMapping(value = "/change-password", produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<ResultBean> changePassword(@RequestBody String json) {
+        try{
+            ResultBean resultBean = authenticationService.changePassword(json);
+            return new ResponseEntity<ResultBean>(resultBean, HttpStatus.CREATED);
+        }catch (ApiValidateException ex){
+            return new ResponseEntity<ResultBean>(new ResultBean(ex.getCode(), ex.getMessage()), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_BAD_REQUEST,ConstantMessage.MESSAGE_SYSTEM_ERROR), HttpStatus.OK);
+        }
+    }
+
+    @GetMapping(value = "/change-password/confirm", produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<ResultBean> confirmChangePassword(@RequestParam("required") String id,
+                                                            @RequestParam("pwd") String newPwd,
+                                                            @RequestParam("expired") String expire) {
+        LocalDateTime now = LocalDateTime.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+        int day = now.getDayOfMonth();
+        int hour = now.getHour();
+        int minute = now.getMinute();
+        try{
+            String expireConvert = new String(Base64.getDecoder().decode(expire));
+            System.out.println("Chuỗi " + expireConvert);
+            String[] expired = expireConvert.split("\\-");
+            for (String x: expired
+                 ) {
+                System.out.println("Chuỗi " + x);
+            }
+            if (Integer.valueOf(expired[0]) == year
+                && Integer.valueOf(expired[1]) == month
+                && Integer.valueOf(expired[2]) == day){
+                if (Integer.valueOf(expired[3]) == hour){
+                    boolean isExpire = (minute - Integer.valueOf(expired[4])) <= 30;
+                    if (isExpire){
+                        authenticationService.confirmChange(id,newPwd);
+                        return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_OK, ConstantMessage.MESSAGE_OK), HttpStatus.OK);
+                    }else {
+                        return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_SYSTEM_ERROR, ConstantMessage.MESSAGE_OK), HttpStatus.OK);
+                    }
+                }else {
+                    boolean isExpire = (60 - Integer.valueOf(expired[4]) + minute) <= 30;
+                    if (isExpire){
+                        authenticationService.confirmChange(id,newPwd);
+                        return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_OK, ConstantMessage.MESSAGE_OK), HttpStatus.OK);
+                    }else {
+                        return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_SYSTEM_ERROR, ConstantMessage.MESSAGE_OK), HttpStatus.OK);
+                    }
+                }
+            }else {
+                return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_SYSTEM_ERROR, ConstantMessage.MESSAGE_OK), HttpStatus.OK);
+            }
         }catch (ApiValidateException ex){
             return new ResponseEntity<ResultBean>(new ResultBean(ex.getCode(), ex.getMessage()), HttpStatus.OK);
         } catch (Exception ex) {

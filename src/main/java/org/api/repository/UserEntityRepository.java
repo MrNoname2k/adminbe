@@ -59,6 +59,9 @@ public interface UserEntityRepository extends BaseRepository<UserEntity, String>
     @Query("update UserEntity u set u.delFlg = 0 where u.id =?1")
     @Modifying
     public void recoverUser(String id);
+    @Modifying
+    @Query("update UserEntity u set u.password = ?1 where u.id =?2")
+    public void changePassword(String newPwd,String id);
     @Query(value = "select * from t1_user_entity where del_flg=1",nativeQuery = true)
     public List<UserEntity> getAllUserDeleted();
 

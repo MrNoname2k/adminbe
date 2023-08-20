@@ -63,19 +63,6 @@ public class WebSecurityConfiguration {
                         "/v1/api/files/**",
                         "/socket/**"
                 ).permitAll()
-                .antMatchers(
-                        "/v1/api/users/**",
-                        "/v1/api/posts/**",
-                        "/v1/api/likes/**",
-                        "/v1/api/profiles/**",
-                        "/v1/api/messages/**",
-                        "/v1/api/relationships/**",
-                        "/v1/api/album/**",
-			"/v1/api/ago/profile/**"
-                ).access("hasRole('ROLE_USER')")
-                .antMatchers(
-                        "/v1/api/messages/**"
-                ).access("hasRole('ROLE_ADMIN')")
                 .anyRequest().authenticated();
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

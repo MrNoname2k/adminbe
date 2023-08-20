@@ -18,4 +18,8 @@ public interface AuthenticationService {
 
     public ResultBean checkCode(String json) throws ApiValidateException, Exception;
 
+    public ResultBean changePassword(String json) throws ApiValidateException,Exception;
+
+    public boolean confirmChange(String id, String newPwd) throws ApiValidateException,Exception;
+
 }
