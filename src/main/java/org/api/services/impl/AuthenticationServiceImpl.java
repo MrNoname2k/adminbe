@@ -144,7 +144,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public ResultBean forgotPasswordAuth(String mail) throws ApiValidateException, Exception {
+    public ResultBean forgotPasswordAuth(String json) throws ApiValidateException, Exception {
+        Map<String,String> map = new Gson().fromJson(json,Map.class);
+        String mail = map.get("mail");
         UserEntity user = userEntityRepository.findOneByMail(mail).orElseThrow(() -> new ApiValidateException(ConstantMessage.ID_ERR00002, ConstantColumns.USER_ID));
         LocalDateTime now = LocalDateTime.now();
         int year = now.getYear();
@@ -156,8 +158,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         Object[] object = new Object[2];
         object[0] = user.getFirstName() + " " + user.getLastName();
-        object[1] = "http://localhost:8080/confirm-forgot?required="
-//                +IPV4+"/confirm-forgot?required="
+        object[1] = "http://"
+                +IPV4+"/confirm-forgot?required="
                 +Base64.getEncoder().encodeToString(user.getId().getBytes())
                 +"&expired="+exp;
         List<Object[]> list = new ArrayList<>();

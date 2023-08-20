@@ -12,7 +12,7 @@ public interface AuthenticationService {
 
     public ResultBean registerAuth(String json) throws ApiValidateException, Exception;
 
-    public ResultBean forgotPasswordAuth(String mail) throws ApiValidateException, Exception;
+    public ResultBean forgotPasswordAuth(String json) throws ApiValidateException, Exception;
 
     public boolean confirmForgotPassword(String id, String newPwd) throws ApiValidateException,Exception;
 

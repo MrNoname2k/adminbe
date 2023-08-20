@@ -55,9 +55,9 @@ public class AuthenticationController {
     }
 
     @PostMapping(value = "/forgot-password", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<ResultBean> forgotPassword(@RequestParam(name = "mail") String mail) {
+    public ResponseEntity<ResultBean> forgotPassword(@RequestBody String json) {
         try{
-            ResultBean resultBean = authenticationService.forgotPasswordAuth(mail);
+            ResultBean resultBean = authenticationService.forgotPasswordAuth(json);
             return new ResponseEntity<ResultBean>(resultBean, HttpStatus.CREATED);
         }catch (ApiValidateException ex){
             return new ResponseEntity<ResultBean>(new ResultBean(ex.getCode(), ex.getMessage()), HttpStatus.OK);
