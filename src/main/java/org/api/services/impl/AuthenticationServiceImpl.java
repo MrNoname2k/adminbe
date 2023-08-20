@@ -143,11 +143,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public ResultBean forgotPasswordAuth(String mail) throws ApiValidateException, Exception {
-        if (Boolean.TRUE.equals(userEntityRepository.existsByMail(mail))) {
-            throw new ApiValidateException(ConstantMessage.ID_ERR00001, MessageUtils.getMessage(ConstantMessage.ID_ERR00001));
-        }
-        Object[] object = new Object[1];
-        object[0] = "www.example.com";
+        UserEntity user = userEntityRepository.findOneByMail(mail).orElseThrow(() -> new ApiValidateException(ConstantMessage.ID_ERR00002, ConstantColumns.USER_ID));
+        LocalDateTime now = LocalDateTime.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+        int day = now.getDayOfMonth();
+        int hour = now.getHour();
+        int minute = now.getMinute();
+        String exp = Base64.getEncoder().encodeToString((year+"-"+month+"-"+day+"-"+hour+"-"+minute).getBytes());
+
+        Object[] object = new Object[2];
+        object[0] = user.getFirstName() + " " + user.getLastName();
+        object[1] = "http://localhost:8080/confirm-forgot?required="
+//                +IPV4+"/confirm-forgot?required="
+                +Base64.getEncoder().encodeToString(user.getId().getBytes())
+                +"&expired="+exp;
         List<Object[]> list = new ArrayList<>();
         list.add(object);
         MailInfoResponse mailInfo = new MailInfoResponse(mail, MailTypeEnum.FORGOT.getText(), list, MailTypeEnum.FORGOT);
@@ -157,6 +167,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             e.printStackTrace();
         }
         return new ResultBean(null, ConstantStatus.STATUS_OK, ConstantMessage.MESSAGE_OK);
+    }
+
+    @Override
+    public boolean confirmForgotPassword(String id, String newPwd) throws ApiValidateException, Exception {
+        try {
+            String idConvert = new String(Base64.getDecoder().decode(id));
+            //String newPwdConvert = new String(Base64.getDecoder().decode(newPwd));
+            userEntityRepository.changePassword(encoder.encode(newPwd),idConvert);
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override

@@ -92,7 +92,8 @@ public class MailerServiceImpl implements MailerService {
         if (mailType == MailTypeEnum.FORGOT) {
             template = "forgot-password.ftlh";
             for (Object[] objects : body) { //cid:forgot-password ${body}
-                model.put("link", objects[0].toString());
+                model.put("name", objects[0].toString());
+                model.put("link", objects[1].toString());
             }
         }else if (mailType == MailTypeEnum.REGISTER) {
             template = "register.ftlh";

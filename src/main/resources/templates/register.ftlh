@@ -799,15 +799,12 @@
                                                         </tr>
                                                         <tr>
                                                             <td class="es-p35r es-p40l" align="left">
-                                                                <p style="text-align: center">There was a request to
-                                                                    change your password!</p>
+                                                                <p style="text-align: center">This is the registration confirmation email!</p>
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <td class="es-p25t es-p40r es-p40l" align="center">
-                                                                <p>If did not make this request, just ignore this
-                                                                    email. Otherwise, please click the button below
-                                                                    to change your password:&nbsp;</p>
+                                                                <p>Please do not share the code below with anyone, this is your registration confirmation code:&nbsp;</p>
                                                             </td>
                                                         </tr>
                                                     </table>
