@@ -66,6 +66,49 @@ public class AuthenticationController {
         }
     }
 
+    @GetMapping(value = "/forgot-password/confirm", produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<ResultBean> confirmForgotPassword(@RequestParam("required") String id,
+                                                            @RequestParam("pwd") String newPwd,
+                                                            @RequestParam("expired") String expire) {
+        LocalDateTime now = LocalDateTime.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+        int day = now.getDayOfMonth();
+        int hour = now.getHour();
+        int minute = now.getMinute();
+        try{
+            String expireConvert = new String(Base64.getDecoder().decode(expire));
+            String[] expired = expireConvert.split("\\-");
+            if (Integer.valueOf(expired[0]) == year
+                    && Integer.valueOf(expired[1]) == month
+                    && Integer.valueOf(expired[2]) == day){
+                if (Integer.valueOf(expired[3]) == hour){
+                    boolean isExpire = (minute - Integer.valueOf(expired[4])) <= 30;
+                    if (isExpire){
+                        authenticationService.confirmForgotPassword(id,newPwd);
+                        return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_OK, ConstantMessage.MESSAGE_OK), HttpStatus.OK);
+                    }else {
+                        return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_SYSTEM_ERROR, ConstantMessage.MESSAGE_OK), HttpStatus.OK);
+                    }
+                }else {
+                    boolean isExpire = (60 - Integer.valueOf(expired[4]) + minute) <= 30;
+                    if (isExpire){
+                        authenticationService.confirmForgotPassword(id,newPwd);
+                        return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_OK, ConstantMessage.MESSAGE_OK), HttpStatus.OK);
+                    }else {
+                        return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_SYSTEM_ERROR, ConstantMessage.MESSAGE_OK), HttpStatus.OK);
+                    }
+                }
+            }else {
+                return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_SYSTEM_ERROR, ConstantMessage.MESSAGE_OK), HttpStatus.OK);
+            }
+        }catch (ApiValidateException ex){
+            return new ResponseEntity<ResultBean>(new ResultBean(ex.getCode(), ex.getMessage()), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<ResultBean>(new ResultBean(ConstantStatus.STATUS_BAD_REQUEST,ConstantMessage.MESSAGE_SYSTEM_ERROR), HttpStatus.OK);
+        }
+    }
+
     @PostMapping(value = "/change-password", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<ResultBean> changePassword(@RequestBody String json) {
         try{

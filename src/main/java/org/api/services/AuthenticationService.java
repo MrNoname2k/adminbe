@@ -14,6 +14,8 @@ public interface AuthenticationService {
 
     public ResultBean forgotPasswordAuth(String mail) throws ApiValidateException, Exception;
 
+    public boolean confirmForgotPassword(String id, String newPwd) throws ApiValidateException,Exception;
+
     public UserEntity authentication() throws ApiValidateException, Exception;
 
     public ResultBean checkCode(String json) throws ApiValidateException, Exception;
